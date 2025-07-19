@@ -61,16 +61,16 @@ if user_input:
             contents=st.session_state.chat_history,
             config=generate_content_config,
         ):
-            accumulated_text += chunk.text # Accumulate the text from each chunk
-            # Attempt to parse the accumulated text as JSON
-            chunk_json = json.loads(accumulated_text)
-            response_text = chunk_json.get("response", "") # Use .get for safe access
-            print(response_text, end="", flush=True)
-            full_response_text += response_text
-            accumulated_text = "" # Reset accumulated text on successful parse
+        accumulated_text += chunk.text # Accumulate the text from each chunk
+        # Attempt to parse the accumulated text as JSON
+        chunk_json = json.loads(accumulated_text)
+        response_text = chunk_json.get("response", "") # Use .get for safe access
+        print(response_text, end="", flush=True)
+        full_response_text += response_text
+        accumulated_text = "" # Reset accumulated text on successful parse
 
-            # response_text += response_text # TODO: fix this - to remove the response and {}
-            response_area.markdown(full_response_text)
+        # response_text += response_text # TODO: fix this - to remove the response and {}
+        response_area.markdown(full_response_text)
 
     # Append model response to history
     st.session_state.chat_history.append(
