@@ -1,12 +1,17 @@
 # july 10 2025
 import streamlit as st
+import os
 from google import genai
 from google.genai import types
 
 # Set your Gemini API key
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    st.error("Please set the GOOGLE_API_KEY environment variable")
+    st.stop()
 
 # Initialize Gemini client
-client = genai.Client()
+client = genai.Client(api_key=api_key)
 
 # Configure response
 generate_content_config = types.GenerateContentConfig(
@@ -56,11 +61,19 @@ if user_input:
             contents=st.session_state.chat_history,
             config=generate_content_config,
         ):
-            response_text += chunk.text # TODO: fix this - to remove the response and {}
-            response_area.markdown(response_text)
+            accumulated_text += chunk.text # Accumulate the text from each chunk
+            # Attempt to parse the accumulated text as JSON
+            chunk_json = json.loads(accumulated_text)
+            response_text = chunk_json.get("response", "") # Use .get for safe access
+            print(response_text, end="", flush=True)
+            full_response_text += response_text
+            accumulated_text = "" # Reset accumulated text on successful parse
+
+            # response_text += response_text # TODO: fix this - to remove the response and {}
+            response_area.markdown(full_response_text)
 
     # Append model response to history
     st.session_state.chat_history.append(
-        types.Content(role="model", parts=[types.Part.from_text(text=response_text)])
+        types.Content(role="model", parts=[types.Part.from_text(text=full_response_text)])
     )
 
